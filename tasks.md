@@ -49,6 +49,7 @@
 | T19 | Richer export reporting | Expand export summaries and generated data cards with column lists, distributions, artifact lists, and run metadata. | `completed` |
 | T20 | Skill behavior tightening | Tighten the orchestration contract in `SKILL.md` and sub-skills so each route maps clearly to the deterministic script layer. | `completed` |
 | T21 | GitHub documentation | Add GitHub-facing repository documentation for installation, architecture, workflows, and current gaps. | `completed` |
+| T22 | Diagram alignment | Update architecture/media SVGs so command names, script roles, schema directories, and pipeline wording match the current repo setup. | `completed` |
 
 ## Open Technical Notes
 
@@ -71,3 +72,4 @@
 - 2026-03-24: Tightened flat export schema validation and expanded export summaries/data cards with richer dataset statistics; validated with updated tests.
 - 2026-03-24: Fixed imported draft status promotion in `generate.py`, tightened orchestration/sub-skill routing, and added GitHub-facing docs for architecture and workflows.
 - 2026-03-24: Moved architecture SVGs into `docs/media/` and reshaped the README around the `Agentic-SEO-Skill` documentation style.
+- 2026-03-24: Updated both SVG diagrams to reflect the current command surface, resource naming, script responsibilities, and agent-driven workflow wording.
