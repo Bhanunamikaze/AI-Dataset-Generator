@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataset-generator-skill.local/schemas/canonical_schema.json",
+  "title": "Dataset Generator Canonical Record",
+  "description": "Unified intermediate schema for SFT and DPO records flowing through the dataset generation pipeline.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "task_type",
+    "instruction",
+    "context",
+    "response",
+    "metadata",
+    "pipeline_status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "sft",
+        "dpo"
+      ]
+    },
+    "instruction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "type": "string"
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": [
+            "single",
+            "preference_pair"
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chosen": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rejected": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "format": {
+              "const": "single"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        {
+          "properties": {
+            "format": {
+              "const": "preference_pair"
+            }
+          },
+          "required": [
+            "chosen",
+            "rejected"
+          ]
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "difficulty",
+        "persona"
+      ],
+      "properties": {
+        "difficulty": {
+          "type": "string"
+        },
+        "persona": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "generated",
+            "url_reference",
+            "raw_dataset",
+            "internet_research",
+            "manual"
+          ]
+        },
+        "reference_urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "pipeline_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "pass",
+        "fail",
+        "rewrite"
+      ]
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
