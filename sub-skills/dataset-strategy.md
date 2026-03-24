@@ -27,6 +27,9 @@ Turn the user request into a concrete dataset plan before any records are writte
 5. Define the target example count:
    - use the user-provided size when present
    - default to `500` examples when the user does not specify a size
+6. Decide ingestion safety mode:
+   - red-team, security, pentest, jailbreak, and prompt-injection corpora should default to injection-tolerant import behavior
+   - use strict flagging only when the user clearly wants defensive filtering instead
 
 ## Important rule
 
@@ -49,6 +52,7 @@ Produce a concise plan with:
 - intended example count
 - taxonomy buckets
 - quality requirements
+- ingestion safety mode
 - resume or fresh-run decision
 
 Always state the intended example count explicitly. Do not leave it implicit.

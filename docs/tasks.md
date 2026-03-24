@@ -59,6 +59,7 @@
 | T30 | README polish | Add a CI badge, GitHub metadata guidance, safer install guidance, 500-record rationale, security notes, and a roadmap section. | `completed` |
 | T31 | Lean install payload and tag packaging | Restrict `install.sh` to the runtime skill payload only, and on tag pushes build and publish packaged runtime artifacts in GitHub Actions. | `completed` |
 | T32 | Adversarial dataset safety controls | Allow intentional prompt-injection corpora to bypass injection flagging during import, expand refusal heuristics, and harden placeholder detection. | `completed` |
+| T33 | Auto-enable adversarial ingestion mode | Default red-team, security, pentest, and jailbreak dataset requests to injection-tolerant import mode, with an explicit strict-mode override. | `completed` |
 
 ## Open Technical Notes
 
@@ -89,3 +90,4 @@
 - 2026-03-24: Switched `install.sh` to an allowlist runtime payload, and added a tag-triggered GitHub Actions packaging job that publishes release assets for the skill bundle.
 - 2026-03-24: Removed `pyproject.toml` to keep the repo aligned with skill-runtime reality; retained `requirements.txt` as the only dependency declaration.
 - 2026-03-24: Added `--allow-injections` support for intentional adversarial-security datasets, expanded soft-refusal detection, and made placeholder heuristics case-insensitive.
+- 2026-03-24: Added automatic injection-tolerant defaults for red-team, security, pentest, and jailbreak requests, plus `--enforce-security-flags` as an explicit strict-mode override.

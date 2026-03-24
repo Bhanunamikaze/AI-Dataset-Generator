@@ -30,7 +30,9 @@ This preserves lineage and keeps the verify-only path resumable.
 
 ## Adversarial Security Data
 
-If the dataset intentionally contains prompt injections, jailbreaks, or system-prompt-leak examples, import with `--allow-injections`.
+If the dataset intentionally contains prompt injections, jailbreaks, or system-prompt-leak examples, import in injection-tolerant mode.
+
+Red-team, security, pentest, and jailbreak requests now enable this by default from the request text. Use `--allow-injections` to force it explicitly or `--enforce-security-flags` to force strict flagging.
 
 This bypasses prompt-injection regex flagging while still preserving control-character cleanup and normal canonicalization.
 

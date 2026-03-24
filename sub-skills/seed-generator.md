@@ -41,6 +41,8 @@ python3 scripts/generate.py --input <drafts.jsonl> --source-type <generated|url_
 
 The imported drafts will enter the pipeline as `raw_generated` records unless they still contain explicit placeholder responses, in which case they remain `seeded`.
 
+For red-team, security, pentest, jailbreak, or prompt-injection datasets, treat injection-tolerant import as the default. Add `--enforce-security-flags` only when you want those payloads flagged instead of preserved.
+
 ## Required metadata
 
 Each canonical record should carry enough metadata for later export and audit:

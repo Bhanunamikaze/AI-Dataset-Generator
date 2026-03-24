@@ -17,7 +17,7 @@ An agentic dataset-generation skill for agent IDEs, built around tool-native rea
 - Shared utility modules: `5`
 - Internal canonical schema: `1`
 - Preset export schemas: `3`
-- Automated tests: `11`
+- Automated tests: `14`
 
 
 ## Features
@@ -96,13 +96,17 @@ python3 -m pip install -r requirements.txt
 
 The runtime sanitizer always strips control characters, but prompt-injection flagging can be relaxed when you are intentionally building red-team or jailbreak training corpora.
 
-Use the import flags below for those cases:
+For red teaming, security, pentest, and jailbreak datasets, the scripts now enable this mode by default when the request text signals that intent.
+
+Use the import flags below when you want to force the behavior explicitly:
 
 ```bash
 python3 scripts/generate.py --input drafts.jsonl --source-type raw_dataset --allow-injections
 python3 scripts/augment.py --input augmented.jsonl --source-type raw_dataset --allow-injections
 python3 scripts/verify.py --input dataset.jsonl --source-type raw_dataset --allow-injections
 ```
+
+Use `--enforce-security-flags` to opt back into strict flagging for those requests.
 
 That bypasses prompt-injection regex flagging while preserving other normalization behavior.
 

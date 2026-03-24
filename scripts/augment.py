@@ -11,6 +11,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.utils.canonical import build_record_id, normalize_record, row_to_record
+from scripts.utils.security import resolve_allow_injections
 from scripts.utils.db import (
     fetch_records_by_status,
     get_connection,
@@ -74,11 +75,20 @@ def parse_args() -> argparse.Namespace:
         default="generated",
         help="Source type metadata for augmented records.",
     )
-    parser.add_argument(
+    allow_group = parser.add_mutually_exclusive_group()
+    allow_group.add_argument(
         "--allow-injections",
+        dest="allow_injections",
         action="store_true",
         help="Allow prompt-injection and jailbreak-like strings during import for intentional adversarial-security datasets.",
     )
+    allow_group.add_argument(
+        "--enforce-security-flags",
+        dest="allow_injections",
+        action="store_false",
+        help="Keep prompt-injection flagging enabled, even for security or jailbreak dataset requests.",
+    )
+    parser.set_defaults(allow_injections=None)
     parser.add_argument(
         "--db",
         default=None,
@@ -88,14 +98,14 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_input_records(args: argparse.Namespace) -> list[dict[str, Any]]:
+def load_input_records(args: argparse.Namespace, allow_injections: bool) -> list[dict[str, Any]]:
     raw_records = load_records(args.input)
     return [
         normalize_record(
             item,
             default_task_type="sft",
             source_type=args.source_type,
-            allow_injections=args.allow_injections,
+            allow_injections=allow_injections,
         )
         for item in raw_records
     ]
@@ -153,6 +163,11 @@ def main() -> None:
     args = parse_args()
     db_path = initialize_database(args.db) if args.db else initialize_database()
     run_id = args.run_id or f"run_{uuid.uuid4().hex[:12]}"
+    allow_injections = resolve_allow_injections(
+        args.allow_injections,
+        args.user_query,
+        args.source_type,
+    )
 
     connection = get_connection(db_path)
     try:
@@ -166,11 +181,15 @@ def main() -> None:
             status="in_progress",
         )
 
-        records = load_input_records(args) if args.input else build_variants(args, connection)
+        records = (
+            load_input_records(args, allow_injections)
+            if args.input
+            else build_variants(args, connection)
+        )
         summary: dict[str, Any] = {
             "run_id": run_id,
             "db_path": str(db_path),
-            "allow_injections": args.allow_injections,
+            "allow_injections": allow_injections,
             "augmented": 0,
             "failed": 0,
             "record_ids": [],

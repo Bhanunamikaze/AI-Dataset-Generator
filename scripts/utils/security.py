@@ -5,6 +5,21 @@ from typing import Any
 
 CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 UNTRUSTED_SOURCE_TYPES = {"url_reference", "raw_dataset", "internet_research"}
+AUTO_ALLOW_INJECTION_PATTERN = re.compile(
+    r"\b("
+    r"red[\s-]?team(?:ing)?|"
+    r"pentest(?:ing)?|penetration\s*test(?:ing)?|"
+    r"jailbreak(?:ing)?|"
+    r"prompt[\s-]?injection|"
+    r"system\s*prompt(?:\s*leak(?:age)?)?|"
+    r"prompt\s*leak(?:age)?|"
+    r"exploit(?:\s*development)?|"
+    r"offensive\s*security|"
+    r"security|"
+    r"cybersecurity"
+    r")\b",
+    re.IGNORECASE,
+)
 PROMPT_INJECTION_PATTERNS = (
     (
         "ignore_previous_instructions",
@@ -39,6 +54,28 @@ def sanitize_text(value: Any) -> tuple[Any, bool]:
         return value, False
     cleaned = CONTROL_CHAR_PATTERN.sub("", value).replace("\r\n", "\n").replace("\r", "\n")
     return cleaned, cleaned != value
+
+
+def should_allow_injections_by_default(*values: Any) -> bool:
+    for value in values:
+        if isinstance(value, str):
+            if AUTO_ALLOW_INJECTION_PATTERN.search(value):
+                return True
+            continue
+        if isinstance(value, dict):
+            if should_allow_injections_by_default(*value.values()):
+                return True
+            continue
+        if isinstance(value, (list, tuple, set)):
+            if should_allow_injections_by_default(*value):
+                return True
+    return False
+
+
+def resolve_allow_injections(explicit: bool | None, *signals: Any) -> bool:
+    if explicit is not None:
+        return explicit
+    return should_allow_injections_by_default(*signals)
 
 
 def sanitize_record(
