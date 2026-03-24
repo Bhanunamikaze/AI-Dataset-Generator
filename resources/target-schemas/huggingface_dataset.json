@@ -1,0 +1,34 @@
+{
+  "name": "huggingface_dataset",
+  "description": "HuggingFace-oriented export targets for chat SFT and preference datasets.",
+  "sft_record": {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Optional context"
+      },
+      {
+        "role": "user",
+        "content": "Instruction"
+      },
+      {
+        "role": "assistant",
+        "content": "Response"
+      }
+    ],
+    "metadata": {
+      "difficulty": "medium",
+      "persona": "general"
+    }
+  },
+  "dpo_record": {
+    "prompt": "Instruction",
+    "context": "Optional context",
+    "chosen": "Preferred response",
+    "rejected": "Rejected response",
+    "metadata": {
+      "difficulty": "medium",
+      "persona": "general"
+    }
+  }
+}

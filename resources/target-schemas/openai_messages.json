@@ -1,0 +1,36 @@
+{
+  "name": "openai_messages",
+  "description": "OpenAI-style JSONL export target for SFT data, with a generic preference-pair variant for DPO records.",
+  "sft_record": {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Optional context"
+      },
+      {
+        "role": "user",
+        "content": "Instruction"
+      },
+      {
+        "role": "assistant",
+        "content": "Response"
+      }
+    ],
+    "metadata": {
+      "difficulty": "medium",
+      "persona": "general"
+    }
+  },
+  "dpo_record": {
+    "input": {
+      "instruction": "Instruction",
+      "context": "Optional context"
+    },
+    "chosen": "Preferred response",
+    "rejected": "Rejected response",
+    "metadata": {
+      "difficulty": "medium",
+      "persona": "general"
+    }
+  }
+}

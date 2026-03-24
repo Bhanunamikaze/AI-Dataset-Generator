@@ -1,0 +1,55 @@
+{
+  "name": "flat_export_default",
+  "mode": "flat",
+  "description": "Default flat export mapping usable for CSV or JSONL outputs.",
+  "columns": [
+    {
+      "name": "id",
+      "source": "id"
+    },
+    {
+      "name": "task_type",
+      "source": "task_type"
+    },
+    {
+      "name": "instruction",
+      "source": "instruction"
+    },
+    {
+      "name": "context",
+      "source": "context"
+    },
+    {
+      "name": "response_text",
+      "source": "response.text"
+    },
+    {
+      "name": "chosen",
+      "source": "response.chosen"
+    },
+    {
+      "name": "rejected",
+      "source": "response.rejected"
+    },
+    {
+      "name": "difficulty",
+      "source": "metadata.difficulty"
+    },
+    {
+      "name": "persona",
+      "source": "metadata.persona"
+    },
+    {
+      "name": "source_type",
+      "source": "source_type"
+    },
+    {
+      "name": "judge_score",
+      "source": "judge_score"
+    },
+    {
+      "name": "judge_reason",
+      "source": "judge_reason"
+    }
+  ]
+}

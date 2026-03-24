@@ -36,9 +36,9 @@
 | T06 | Shared runtime utilities | Add reusable utilities for prompt loading, schema helpers, CSV/JSONL parsing, structured record conversion, and local run-state management. | `completed` |
 | T07 | Generation pipeline | Implement `scripts/generate.py` for turning agent-collected or user-provided material into canonical dataset records and tracked run state. | `completed` |
 | T08 | Augmentation pipeline | Implement `scripts/augment.py` for diversity transformations such as tone shifts, persona changes, difficulty changes, and adversarial variations. | `completed` |
-| T09 | Verification pipeline | Implement `scripts/verify.py` with heuristic refusal detection, schema validation, and structured review support for LLM-as-judge steps done inside the IDE. | `pending` |
-| T10 | Deduplication pipeline | Implement `scripts/dedup.py` with exact and near-duplicate detection using MinHash/LSH. | `pending` |
-| T11 | Export pipeline | Implement `scripts/export.py` for OpenAI/Hugging Face style JSONL and CSV exports, dataset splits, and automatic data-card output. | `pending` |
+| T09 | Verification pipeline | Implement `scripts/verify.py` with heuristic refusal detection, schema validation, and structured review support for LLM-as-judge steps done inside the IDE. | `completed` |
+| T10 | Deduplication pipeline | Implement `scripts/dedup.py` with exact and near-duplicate detection using MinHash/LSH. | `completed` |
+| T11 | Export pipeline | Implement `scripts/export.py` for OpenAI/Hugging Face style JSONL and CSV exports, dataset splits, and automatic data-card output. | `completed` |
 | T12 | Input ingestion | Support URL/reference-data workflows, existing dataset ingestion workflows, and tool-collected web research workflows that normalize material into the canonical schema. | `pending` |
 | T13 | Sub-skill prompts | Create the markdown prompt files in `sub-skills/` for strategy, seeding, diversity, filtering, judging, deduplication guidance, export formatting, data card generation, and verification-only flows. | `pending` |
 | T14 | Skill orchestrator | Create `SKILL.md` as the orchestration entry point for `dataset generate`, `dataset verify`, and `dataset export`, including resume detection and route selection by user intent across the three IDEs. | `pending` |
@@ -59,3 +59,4 @@
 - 2026-03-24: Added the multi-target installer, canonical schema, workspace scaffold, and SQLite bootstrap layer; validated installer help, schema parsing, and DB initialization.
 - 2026-03-24: Added shared utilities for file IO, schema validation, canonical normalization, and DB run-state migration; validated imports and normalization behavior.
 - 2026-03-24: Implemented and smoke-tested `generate.py` and `augment.py`, including seed creation, SQLite imports, and DB-backed metadata variant generation.
+- 2026-03-24: Implemented and smoke-tested `verify.py`, `dedup.py`, and `export.py`, including review-file adjudication, duplicate suppression, flexible flat-schema export, and automatic data-card generation.

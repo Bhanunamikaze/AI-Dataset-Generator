@@ -3,3 +3,9 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 workspace/run_state.sqlite
+workspace/*_train.jsonl
+workspace/*_test.jsonl
+workspace/*_train.csv
+workspace/*_test.csv
+workspace/*_summary.json
+workspace/DATA_CARD.md
