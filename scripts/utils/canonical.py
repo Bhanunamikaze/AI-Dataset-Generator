@@ -103,8 +103,8 @@ def build_seed_record(
     return CanonicalRecord(
         id=record_id,
         task_type=task_type,
-        instruction=payload["instruction"],
-        context=payload["context"],
+        instruction=str(payload["instruction"]),
+        context=str(payload["context"]),
         response=response,
         metadata={
             "difficulty": "unspecified",
@@ -177,7 +177,7 @@ def normalize_record(
     }
     normalized = sanitize_record(
         normalized,
-        source_type=normalized["source_type"],
+        source_type=str(normalized["source_type"]),
         allow_injections=effective_allow_injections,
     )
     if not normalized["id"]:

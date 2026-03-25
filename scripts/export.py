@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-if __package__ in (None, ""):
+if getattr(sys.modules.get(__name__, None), "__package__", None) in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.utils.canonical import row_to_record
@@ -93,10 +93,10 @@ def split_records(
     cluster_keys = list(clusters.keys())
     random.Random(seed).shuffle(cluster_keys)
 
-    train_records = []
-    test_records = []
+    train_records: list[dict[str, Any]] = []
+    test_records: list[dict[str, Any]] = []
     
-    target_test_count = int(len(records) * split_ratio)
+    target_test_count = int(float(len(records)) * split_ratio)
     if target_test_count == 0:
         target_test_count = 1
 
@@ -354,7 +354,7 @@ def main() -> None:
         rows = fetch_records_by_status(connection, statuses)
         if args.source_run_id:
             rows = [row for row in rows if row["run_id"] == args.source_run_id]
-        records = [row_to_record(row) for row in rows if row["pipeline_status"] == "pass"]
+        records = [row_to_record(dict(row)) for row in rows if row["pipeline_status"] == "pass"]
     finally:
         connection.close()
 
