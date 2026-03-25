@@ -1,10 +1,8 @@
 # Dataset Skill (Antigravity / Claude / Codex)
 
-[![CI](https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/actions/workflows/ci.yml/badge.svg)](https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/actions/workflows/ci.yml)
-
 An agentic dataset-generation skill for agent IDEs, built around tool-native reasoning plus a deterministic local pipeline for normalization, verification, deduplication, export, and data-card generation.
 
-**In plain English:** This tool turns your AI coding assistant into an automated data engineer. You just describe the dataset you need in normal language, and the agent automatically researches, writes examples, filters out bad/duplicate responses, and exports a high-quality dataset ready for model training (SFT or DPO).
+**In Simple Terms:** This tool turns your AI coding assistant into an automated data engineer. You just describe the dataset you need in normal language, and the agent automatically researches, writes examples, filters out bad/duplicate responses, and exports a high-quality dataset ready for model training (SFT or DPO).
 
 ## IDE Compatibility
 
@@ -137,26 +135,30 @@ You do not need to use explicit flags or command syntax. Natural-language prompt
 
 ### Prompt examples
 
-```text
-Generate a medical triage dataset for SFT.
-```
-
+**Basic SFT Generation**
 ```text
 Generate a 1500-example legal intake dataset with hard edge cases and export it as CSV.
 ```
 
+**Advanced DPO Generation with Reasoning**
 ```text
-Turn these URLs into a fine-tuning dataset and keep the source URLs in metadata.
+Generate a 1000-example DPO dataset for Python code review focusing on identifying subtle concurrency bugs. I will use this to train an LLM to act as an automated PR reviewer.
+
+Each example should be structured as follows:
+- Context: A snippet of Python code using `asyncio` or `threading` with a hidden race condition or deadlock.
+- Instruction: "Please review this code for concurrency issues."
+- Chosen Response: A <think> block with step-by-step reasoning that correctly identifies the root cause, followed by a polite explanation and fixed code.
+- Rejected Response: A plausible-sounding review that misses the bug entirely or suggests a flawed "fix".
+
+Ensure the dataset covers diverse real-world scenarios like asynchronous task cancellation, shared state mutations, and improper lock ordering. Export the dataset in HuggingFace format.
 ```
 
-```text
-Use web research to build a cybersecurity FAQ dataset for customer support.
-```
-
+**Dataset Normalization / Import**
 ```text
 Normalize this CSV into HuggingFace chat format and deduplicate it.
 ```
 
+**Audit and Export**
 ```text
 Verify this dataset, remove weak examples, and export custom columns: prompt, answer, persona, difficulty.
 ```
