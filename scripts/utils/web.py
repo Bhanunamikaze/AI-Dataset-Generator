@@ -313,7 +313,8 @@ def _search_duckduckgo_html(query: str, max_results: int) -> list[SearchResult]:
             snip = div.select_one(".result__snippet")
             if not a:
                 continue
-            href = a.get("href", "")
+            raw_href = a.get("href", "")
+            href = str(raw_href[0]) if isinstance(raw_href, list) else str(raw_href)
             if "uddg=" in href:
                 try:
                     href = urllib.parse.unquote(href.split("uddg=")[1].split("&")[0])
@@ -321,9 +322,9 @@ def _search_duckduckgo_html(query: str, max_results: int) -> list[SearchResult]:
                     pass
             results.append(
                 SearchResult(
-                    title=a.get_text(strip=True),
-                    url=href,
-                    snippet=snip.get_text(strip=True) if snip else "",
+                    title=str(a.get_text(strip=True)),
+                    url=str(href),
+                    snippet=str(snip.get_text(strip=True)) if snip else "",
                 )
             )
     else:

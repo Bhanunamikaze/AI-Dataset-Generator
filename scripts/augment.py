@@ -7,7 +7,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-if __package__ in (None, ""):
+if __name__ == "__main__" or not getattr(sys.modules.get(__name__, None), "__package__", None):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.utils.canonical import build_record_id, normalize_record, row_to_record
@@ -123,7 +123,7 @@ def build_variants(args: argparse.Namespace, connection) -> list[dict[str, Any]]
 
     variants: list[dict[str, Any]] = []
     for row in rows:
-        base_record = row_to_record(row)
+        base_record = row_to_record(dict(row))
         for persona in personas:
             for difficulty in difficulties:
                 if (

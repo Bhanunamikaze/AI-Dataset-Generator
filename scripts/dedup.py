@@ -8,7 +8,7 @@ import sys
 import uuid
 from pathlib import Path
 
-if __package__ in (None, ""):
+if __name__ == "__main__" or not getattr(sys.modules.get(__name__, None), "__package__", None):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.utils.canonical import record_text, row_to_record
@@ -154,7 +154,7 @@ def main() -> None:
         if args.source_run_id:
             rows = [row for row in rows if row["run_id"] == args.source_run_id]
         rows = rows[: args.limit]
-        records = [row_to_record(row) for row in rows]
+        records = [row_to_record(dict(row)) for row in rows]
 
         kept_ids, duplicate_details = find_duplicates(records, args.threshold)
         duplicate_ids = {item["duplicate_id"] for item in duplicate_details}

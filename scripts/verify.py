@@ -8,7 +8,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-if __package__ in (None, ""):
+if __name__ == "__main__" or not getattr(sys.modules.get(__name__, None), "__package__", None):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.utils.canonical import normalize_record, row_to_record
@@ -175,7 +175,7 @@ def load_records_for_verification(
     rows = fetch_records_by_status(connection, statuses)
     if args.source_run_id:
         rows = [row for row in rows if row["run_id"] == args.source_run_id]
-    return [row_to_record(row) for row in rows[: args.limit]]
+    return [row_to_record(dict(row)) for row in rows[: args.limit]]
 
 
 def apply_review(record: dict[str, Any], review: dict[str, Any] | None) -> tuple[str, str, int | None, str | None]:
@@ -186,8 +186,8 @@ def apply_review(record: dict[str, Any], review: dict[str, Any] | None) -> tuple
     score = review.get("score")
     reason = review.get("reason")
     if status == "pass":
-        return "verified_pass", "pass", int(score) if score not in (None, "") else None, str(reason or "")
-    return "verified_fail", "fail", int(score) if score not in (None, "") else None, str(reason or "")
+        return "verified_pass", "pass", int(str(score)) if score not in (None, "") else None, str(reason or "")
+    return "verified_fail", "fail", int(str(score)) if score not in (None, "") else None, str(reason or "")
 
 
 def main() -> None:

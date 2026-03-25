@@ -37,7 +37,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-if __package__ in (None, ""):
+if __name__ == "__main__" or not getattr(sys.modules.get(__name__, None), "__package__", None):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.utils.canonical import build_record_id
