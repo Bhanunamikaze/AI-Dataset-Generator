@@ -12,7 +12,7 @@ An agentic dataset-generation skill for agent IDEs, built around tool-native rea
 
 ## Current Inventory
 
-- Specialized sub-skills: `10`
+- Specialized sub-skills: `11`
 - Pipeline entry scripts: `6`
 - Shared utility modules: `6`
 - Internal canonical schema: `1`
@@ -31,9 +31,10 @@ An agentic dataset-generation skill for agent IDEs, built around tool-native rea
 | `dataset-strategy` | Request classification, taxonomy planning, `task_type` selection, and schema planning |
 | `seed-generator` | Canonical draft creation for generated, URL-derived, research-derived, or imported datasets |
 | `diversity-engine` | Coverage expansion via rewritten augmentations or deterministic metadata variants |
-| `quality-filter` | Fast heuristic filtering for placeholders, refusals, and weak records |
-| `llm-judge` | Structured review-file contract for semantic pass/fail judgments inside the IDE |
-| `deduplicator` | Exact and near-duplicate suppression before export |
+| `quality-filter` | Fast heuristic filtering for placeholders, refusals, weak records, and syntax checks |
+| `llm-judge` | Structured review-file contract for semantic pass/fail judgments, behavioral delta, and self-bias mitigation |
+| `dpo-pair-generator` | Generates contrastive preference pairs with hard negatives for Direct Preference Optimization (DPO) |
+| `deduplicator` | Exact and semantic near-duplicate suppression before export |
 | `formatter-exporter` | Preset and custom flat-schema mapping for final user-facing outputs |
 | `local-collector` | Sub-skill that routes collection through IDE-native tools first, then falls back to `scripts/collect.py` |
 
@@ -182,13 +183,7 @@ Those reasoning-heavy phases are handled by the host IDE agent via [`SKILL.md`](
 
 ## Architecture
 
-Primary skill architecture:
-
 ![Dataset skill architecture](./docs/media/dataset-skill-architecture.svg)
-
-Industry-style pipeline phases:
-
-![Industry pipeline](./docs/media/industry-pipeline.svg)
 
 ## LLM-First Workflow
 
@@ -233,5 +228,3 @@ Why `500`:
 
 - Add a standalone `dataset card` command if users want card generation decoupled from export.
 - Move toward stronger artifact versioning and per-run workspace layout once larger datasets become a primary use case.
-- Add multi-turn conversation record support (beyond single instruction/response pairs).
-- Add Parquet export for HuggingFace-native workflows.
