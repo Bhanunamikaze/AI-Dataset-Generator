@@ -33,6 +33,7 @@ Responsibilities:
 - [`sub-skills/dataset-strategy.md`](../sub-skills/dataset-strategy.md)
 - [`sub-skills/seed-generator.md`](../sub-skills/seed-generator.md)
 - [`sub-skills/diversity-engine.md`](../sub-skills/diversity-engine.md)
+- [`sub-skills/dpo-pair-generator.md`](../sub-skills/dpo-pair-generator.md)
 - [`sub-skills/quality-filter.md`](../sub-skills/quality-filter.md)
 - [`sub-skills/llm-judge.md`](../sub-skills/llm-judge.md)
 - [`sub-skills/deduplicator.md`](../sub-skills/deduplicator.md)

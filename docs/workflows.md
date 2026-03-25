@@ -27,7 +27,7 @@ Use this when the user wants source material fetched before drafting training re
 
 Use this when the user wants a new dataset or wants raw material turned into one.
 
-1. decide request type, `task_type`, `source_type`, and target schema
+1. decide request type, `task_type` (`sft` vs `dpo`), `source_type`, and target schema
 2. set the target example count
 3. if the user does not specify a size, default to `500`
 4. generate or collect records in batches until the target count is reached
@@ -35,9 +35,10 @@ Use this when the user wants a new dataset or wants raw material turned into one
 6. collect or write canonical draft records
 7. import drafts with `scripts/generate.py`
 8. augment if needed
-9. verify
-10. deduplicate
-11. export
+9. generate preference pairs using `dpo-pair-generator` if `task_type` is `dpo`
+10. verify
+11. deduplicate
+12. export
 
 ## Verify Flow
 
