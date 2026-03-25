@@ -191,6 +191,7 @@ Users do not need to use explicit flags if they describe the task naturally.
 - `sub-skills/dataset-strategy.md`
 - `sub-skills/seed-generator.md`
 - `sub-skills/diversity-engine.md`
+- `sub-skills/dpo-pair-generator.md`
 - `sub-skills/quality-filter.md`
 - `sub-skills/llm-judge.md`
 - `sub-skills/deduplicator.md`

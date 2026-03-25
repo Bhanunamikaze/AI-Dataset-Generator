@@ -41,3 +41,16 @@ python3 scripts/export.py --format csv --split 0.0 --source-run-id <run_id>
 - refusal leakage
 - duplicate rate
 - exportability into target formats
+
+## Cross-record consistency checks
+
+Done after standard verification, before export:
+
+1. Group records by domain/subtopic tag (use `metadata.domain` or keyword clusters from instructions).
+2. Sample pairs of records within the same cluster and check for contradicting advice:
+   - Record A says “always use `==` for equality”; Record B says “never use `==`, prefer `.equals()`”.
+   - Conflicting code style conventions within the same language/framework.
+3. When a contradiction is found, flag both records with `metadata.requires_manual_review: true` and add a note in `error_message` describing the conflict.
+4. Do not automatically fail contradicting records — one may be context-specific (e.g., different Python vs Java conventions). Require human review.
+
+This step can be done by the LLM judge on sampled pairs from the same topic cluster — draft a small review batch of candidate pairs and score them as a consistency check rather than a quality check.
