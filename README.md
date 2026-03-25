@@ -221,7 +221,6 @@ Why `500`:
 - [Primary Skill Contract](./SKILL.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
-- [Task Tracker](./docs/tasks.md)
 
 
 ## Roadmap
