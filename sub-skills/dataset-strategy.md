@@ -19,7 +19,7 @@ Turn the user request into a concrete dataset plan before any records are writte
    - `dpo` for chosen/rejected preference pairs
 3. Define the taxonomy:
    - domains, subtopics, personas, difficulty spread, edge cases
-   - **Mandate Long-Tail Taxonomy Discovery:** explicitly research and sweep for modern, advanced, and framework-specific edge cases (e.g., DOMPurify bypasses, React `dangerouslySetInnerHTML`) rather than settling for the top 3 generic categories.
+   - **Mandate Long-Tail Taxonomy Discovery:** explicitly research and sweep for modern, advanced, and framework-specific edge cases rather than settling for the top 3 generic categories.
 4. Define the target output:
    - OpenAI preset
    - HuggingFace preset
