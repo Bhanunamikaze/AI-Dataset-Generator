@@ -2,7 +2,7 @@
 
 $ErrorActionPreference = 'Stop'
 
-$REPO_URL = if ($env:REPO_URL) { $env:REPO_URL } else { 'https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git' }
+$REPO_URL = if ($env:REPO_URL) { $env:REPO_URL } else { 'https://github.com/Bhanunamikaze/ai-dataset-generator.git' }
 $SKILL_NAME = 'dataset-generator'
 $TARGET = 'antigravity'
 $TARGET_EXPLICIT = $false
@@ -17,7 +17,7 @@ $TEMP_DIR = $null
 
 function Show-Usage {
 @'
-Dataset Generator Skill Installer (Antigravity / Claude / Codex)
+AI Dataset Generator Installer (Antigravity / Claude / Codex)
 
 Usage:
   pwsh ./install.ps1 [options]
@@ -309,15 +309,15 @@ if ($ONLINE_MODE) {
   Write-Host "Fetching latest release tag..."
   $zipUrl = ''
   try {
-    $releaseInfo = Invoke-RestMethod -Uri "https://api.github.com/repos/Bhanunamikaze/Agentic-Dataset-Skill/releases/latest" -ErrorAction Stop
+    $releaseInfo = Invoke-RestMethod -Uri "https://api.github.com/repos/Bhanunamikaze/ai-dataset-generator/releases/latest" -ErrorAction Stop
     $latestTag = $releaseInfo.tag_name
     if ([string]::IsNullOrWhiteSpace($latestTag)) { throw "Tag empty" }
     Write-Host "Downloading latest tag package: $latestTag"
-    $zipUrl = "https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/archive/refs/tags/${latestTag}.zip"
+    $zipUrl = "https://github.com/Bhanunamikaze/ai-dataset-generator/archive/refs/tags/${latestTag}.zip"
   }
   catch {
     Write-Host "Could not determine latest tag, falling back to main branch archive..."
-    $zipUrl = "https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/archive/refs/heads/main.zip"
+    $zipUrl = "https://github.com/Bhanunamikaze/ai-dataset-generator/archive/refs/heads/main.zip"
   }
 
   $TEMP_DIR = Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString('N'))
@@ -374,7 +374,7 @@ try {
   }
 
   Write-Host ''
-  Write-Host 'Installing Dataset Generator Skill'
+  Write-Host 'Installing AI Dataset Generator'
   Write-Host "Target: $TARGET"
   Write-Host "Skill name: $SKILL_NAME"
   Write-Host ''

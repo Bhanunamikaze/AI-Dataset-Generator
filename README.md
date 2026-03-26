@@ -1,6 +1,6 @@
-# Dataset Skill (Antigravity / Claude / Codex)
+# AI Dataset Generator
 
-An agentic dataset-generation skill for agent IDEs, built around tool-native reasoning plus a deterministic local pipeline for normalization, verification, deduplication, export, and data-card generation.
+An AI dataset generator for agent IDEs, built around tool-native reasoning plus a deterministic local pipeline for normalization, verification, deduplication, export, and data-card generation.
 
 **In Simple Terms:** This tool turns your AI coding assistant into an automated data engineer. You describe the dataset you need, and the agent researches examples, builds them in batches, rejects duplicates early, checks coverage while generating, applies semantic review, and exports a training-ready dataset (SFT or DPO).
 
@@ -68,12 +68,12 @@ This creates:
 
 **macOS / Linux (Bash):**
 ```bash
-curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh | bash -s -- --online --target all --project-dir /path/to/your/project
+curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/ai-dataset-generator/main/install.sh | bash -s -- --online --target all --project-dir /path/to/your/project
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.ps1') } --online --target all --project-dir C:\path\to\your\project"
+Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/ai-dataset-generator/main/install.ps1') } --online --target all --project-dir C:\path\to\your\project"
 ```
 
 ### 2. Global Install
@@ -88,12 +88,12 @@ This creates:
 
 **macOS / Linux (Bash):**
 ```bash
-curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh | bash -s -- --online --target global
+curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/ai-dataset-generator/main/install.sh | bash -s -- --online --target global
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.ps1') } --online --target global"
+Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/ai-dataset-generator/main/install.ps1') } --online --target global"
 ```
 
 ### 3. Install From a Local Checkout
@@ -102,8 +102,8 @@ Use this when you want to inspect or edit the repo before installing.
 
 **macOS / Linux (Bash):**
 ```bash
-git clone https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git
-cd Agentic-Dataset-Skill
+git clone https://github.com/Bhanunamikaze/ai-dataset-generator.git
+cd ai-dataset-generator
 
 # Workspace install
 bash install.sh --target all --project-dir /path/to/your/project
@@ -114,8 +114,8 @@ bash install.sh --target global
 
 **Windows (PowerShell):**
 ```powershell
-git clone https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git
-cd Agentic-Dataset-Skill
+git clone https://github.com/Bhanunamikaze/ai-dataset-generator.git
+cd ai-dataset-generator
 
 # Workspace install
 pwsh ./install.ps1 --target all --project-dir C:\path\to\your\project

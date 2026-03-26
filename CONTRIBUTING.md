@@ -3,8 +3,8 @@
 ## Development Setup
 
 ```bash
-git clone https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git
-cd Agentic-Dataset-Skill
+git clone https://github.com/Bhanunamikaze/ai-dataset-generator.git
+cd ai-dataset-generator
 python3 -m pip install -r requirements.txt
 python3 -m unittest discover -s tests -p 'test*.py'
 ```

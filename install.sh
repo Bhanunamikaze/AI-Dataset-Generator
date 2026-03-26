@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git}"
+REPO_URL="${REPO_URL:-https://github.com/Bhanunamikaze/ai-dataset-generator.git}"
 SKILL_NAME="dataset-generator"
 TARGET="antigravity"
 TARGET_EXPLICIT=0
@@ -23,7 +23,7 @@ REQUIRED_PATHS=(
 
 usage() {
     cat <<'EOF'
-Dataset Generator Skill Installer (Antigravity / Claude / Codex)
+AI Dataset Generator Installer (Antigravity / Claude / Codex)
 
 Usage:
   bash install.sh [options]
@@ -57,10 +57,10 @@ Examples:
   bash install.sh --target codex
   bash install.sh --target global
   bash install.sh --target all --project-dir /path/to/project
-  bash install.sh --target codex --repo-path /path/to/Agentic-Dataset-Skill
+  bash install.sh --target codex --repo-path /path/to/ai-dataset-generator
 
 Remote install:
-  curl -fsSLO https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh
+  curl -fsSLO https://raw.githubusercontent.com/Bhanunamikaze/ai-dataset-generator/main/install.sh
   bash install.sh --target codex
 EOF
 }
@@ -304,14 +304,14 @@ if [[ "${ONLINE_MODE}" -eq 1 ]]; then
     require_cmd curl
     require_cmd tar
     echo "Fetching latest release tag..."
-    LATEST_TAG=$(curl -sL https://api.github.com/repos/Bhanunamikaze/Agentic-Dataset-Skill/releases/latest | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || true)
+    LATEST_TAG=$(curl -sL https://api.github.com/repos/Bhanunamikaze/ai-dataset-generator/releases/latest | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || true)
     TEMP_DIR="$(mktemp -d)"
     if [[ -z "${LATEST_TAG}" || "${LATEST_TAG}" == "null" ]]; then
         echo "Could not determine latest tag, falling back to main branch archive..."
-        curl -sL "https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/archive/refs/heads/main.tar.gz" | tar -xz -C "${TEMP_DIR}" --strip-components=1
+        curl -sL "https://github.com/Bhanunamikaze/ai-dataset-generator/archive/refs/heads/main.tar.gz" | tar -xz -C "${TEMP_DIR}" --strip-components=1
     else
         echo "Downloading latest tag package: ${LATEST_TAG}"
-        curl -sL "https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/archive/refs/tags/${LATEST_TAG}.tar.gz" | tar -xz -C "${TEMP_DIR}" --strip-components=1
+        curl -sL "https://github.com/Bhanunamikaze/ai-dataset-generator/archive/refs/tags/${LATEST_TAG}.tar.gz" | tar -xz -C "${TEMP_DIR}" --strip-components=1
     fi
     SRC_DIR="${TEMP_DIR}"
     echo "Using downloaded package source: ${SRC_DIR}"
@@ -348,7 +348,7 @@ if [[ ! -f "${SRC_DIR}/SKILL.md" ]]; then
 fi
 
 echo ""
-echo "Installing Dataset Generator Skill"
+echo "Installing AI Dataset Generator"
 echo "Target: ${TARGET}"
 echo "Skill name: ${SKILL_NAME}"
 echo ""

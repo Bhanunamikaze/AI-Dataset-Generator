@@ -29,7 +29,7 @@ from typing import Any
 
 _DEFAULT_UA = (
     "Mozilla/5.0 (compatible; DatasetSkill/1.0; "
-    "+https://github.com/Bhanunamikaze/Agentic-Dataset-Skill)"
+    "+https://github.com/Bhanunamikaze/ai-dataset-generator)"
 )
 _DEFAULT_TIMEOUT = 15
 
