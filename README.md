@@ -6,9 +6,9 @@ An agentic dataset-generation skill for agent IDEs, built around tool-native rea
 
 ## IDE Compatibility
 
-- Antigravity IDE: `.agent/skills/dataset-generator`
-- Claude Code: `~/.claude/skills/dataset-generator`
-- Codex: `~/.codex/skills/dataset-generator`
+- Antigravity IDE: project-local `.agent/skills/dataset-generator` or user-global `~/.gemini/antigravity/skills/dataset-generator`
+- Claude Code: project-local `.claude/skills/dataset-generator` or user-global `~/.claude/skills/dataset-generator`
+- Codex: project-local `.codex/skills/dataset-generator` or user-global `~/.codex/skills/dataset-generator`
 
 ## How it Works
 
@@ -54,7 +54,10 @@ The skill operates in a continuous agentic loop, splitting work between reasonin
 
 ### Quick Online Install
 
-To download the latest release package and install it globally across all IDEs (Antigravity, Claude, Codex) in one step:
+To download the latest release package and install it across all IDEs in auto mode (`--target all`) in one step:
+
+- workspace-first when the selected project contains `.agent`, `.claude`, or `.codex`
+- user-global fallback when a workspace home for that IDE does not exist
 
 **macOS / Linux (Bash):**
 ```bash
@@ -83,10 +86,11 @@ bash install.sh --target claude
 # Codex:
 bash install.sh --target codex
 
-# Global user install (Claude + Codex):
+# Global user install (all IDEs):
 bash install.sh --target global
 
-# All targets:
+# Auto-select all IDEs:
+# uses project-local .agent/.claude/.codex when present, otherwise falls back to user-global paths
 bash install.sh --target all --project-dir /path/to/your/project
 
 # Install from another local checkout:
@@ -97,7 +101,7 @@ bash install.sh --target codex --repo-path /path/to/Agentic-Dataset-Skill
 
 ### Automatic Online Install
 
-To download the latest release package and install it globally across all IDEs (Antigravity, Claude, Codex) in one step:
+To download the latest release package and install it across all IDEs in auto mode (`--target all`) in one step:
 
 **macOS / Linux (Bash):**
 ```bash
@@ -109,16 +113,28 @@ curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/
 Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.ps1') } --online"
 ```
 
-For a **local workspace** installation (e.g. inside an active Antigravity project), pass the explicit `--target antigravity` and `--project-dir` flags:
+Use `--target global` when you want to force user-global installs for every IDE:
+
+**macOS / Linux (Bash):**
+```bash
+curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh | bash -s -- --online --target global
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.ps1') } --online --target global"
+```
+
+For a **workspace-first** installation, pass `--target all` with `--project-dir`. Antigravity installs into `<project>/.agent`, and Claude/Codex install into `<project>/.claude` / `<project>/.codex` when those directories already exist; otherwise they fall back to the user-global locations.
 
 **macOS / Linux:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh | bash -s -- --online --target antigravity --project-dir /path/to/your/project
+curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh | bash -s -- --online --target all --project-dir /path/to/your/project
 ```
 
 **Windows:**
 ```powershell
-Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.ps1') } --online --target antigravity --project-dir C:\path\to\your\project"
+Invoke-Expression "& { $(Invoke-RestMethod 'https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.ps1') } --online --target all --project-dir C:\path\to\your\project"
 ```
 
 ## Python dependency install:

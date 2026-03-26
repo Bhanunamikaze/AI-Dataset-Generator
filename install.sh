@@ -5,7 +5,9 @@ set -euo pipefail
 REPO_URL="${REPO_URL:-https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git}"
 SKILL_NAME="dataset-generator"
 TARGET="antigravity"
+TARGET_EXPLICIT=0
 PROJECT_DIR="$(pwd)"
+PROJECT_DIR_EXPLICIT=0
 FORCE=0
 INSTALL_DEPS=0
 ONLINE_MODE=0
@@ -42,7 +44,8 @@ Options:
   --install-deps
       Install optional Python dependencies for local helper scripts
   --online
-      Fetch the latest release tag package instead of cloning and install globally (all IDEs).
+      Fetch the latest release tag package instead of cloning.
+      When no --target is supplied, defaults to --target all.
   --force
       Overwrite an existing installed skill
   -h, --help
@@ -145,14 +148,95 @@ copy_skill() {
     echo "Installed for ${label}: ${dest}"
 }
 
+workspace_root_for_tool() {
+    local tool="$1"
+
+    case "${tool}" in
+        antigravity)
+            if [[ "${TARGET}" == "antigravity" ]]; then
+                printf '%s\n' "${PROJECT_DIR}/.agent"
+                return 0
+            fi
+
+            if [[ "${TARGET}" == "all" && ( "${PROJECT_DIR_EXPLICIT}" -eq 1 || -d "${PROJECT_DIR}/.agent" ) ]]; then
+                printf '%s\n' "${PROJECT_DIR}/.agent"
+                return 0
+            fi
+            ;;
+        claude)
+            if [[ -d "${PROJECT_DIR}/.claude" ]]; then
+                printf '%s\n' "${PROJECT_DIR}/.claude"
+                return 0
+            fi
+            ;;
+        codex)
+            if [[ -d "${PROJECT_DIR}/.codex" ]]; then
+                printf '%s\n' "${PROJECT_DIR}/.codex"
+                return 0
+            fi
+            ;;
+    esac
+
+    return 1
+}
+
+global_root_for_tool() {
+    local tool="$1"
+
+    case "${tool}" in
+        antigravity)
+            printf '%s\n' "${HOME}/.gemini/antigravity"
+            ;;
+        claude)
+            printf '%s\n' "${CLAUDE_HOME:-${HOME}/.claude}"
+            ;;
+        codex)
+            printf '%s\n' "${CODEX_HOME:-${HOME}/.codex}"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+install_tool_auto() {
+    local tool="$1"
+    local workspace_root=""
+    local global_root=""
+    local install_root=""
+    local label=""
+
+    global_root="$(global_root_for_tool "${tool}")"
+
+    if workspace_root="$(workspace_root_for_tool "${tool}")"; then
+        install_root="${workspace_root}"
+        label="${tool}-local"
+    else
+        install_root="${global_root}"
+        label="${tool}-global"
+    fi
+
+    copy_skill "${SRC_DIR}" "${install_root}/skills/${SKILL_NAME}" "${label}"
+}
+
+install_tool_global() {
+    local tool="$1"
+    local global_root=""
+
+    global_root="$(global_root_for_tool "${tool}")"
+    copy_skill "${SRC_DIR}" "${global_root}/skills/${SKILL_NAME}" "${tool}-global"
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --target)
             TARGET="${2:-}"
+            TARGET_EXPLICIT=1
             shift 2
             ;;
         --project-dir)
             PROJECT_DIR="${2:-}"
+            PROJECT_DIR_EXPLICIT=1
             shift 2
             ;;
         --skill-name)
@@ -178,7 +262,6 @@ while [[ $# -gt 0 ]]; do
         --online)
             ONLINE_MODE=1
             FORCE=1
-            TARGET="global"
             shift
             ;;
         --force)
@@ -205,6 +288,10 @@ fi
 if [[ "${SOURCE_MODE}" != "auto" && "${SOURCE_MODE}" != "local" && "${SOURCE_MODE}" != "remote" ]]; then
     echo "Error: invalid --source: ${SOURCE_MODE}" >&2
     exit 1
+fi
+
+if [[ "${ONLINE_MODE}" -eq 1 && "${TARGET_EXPLICIT}" -ne 1 ]]; then
+    TARGET="all"
 fi
 
 require_cmd bash
@@ -268,25 +355,28 @@ echo "Target: ${TARGET}"
 echo "Skill name: ${SKILL_NAME}"
 echo ""
 
-if [[ "${TARGET}" == "antigravity" || "${TARGET}" == "all" ]]; then
-    AG_DIR="${PROJECT_DIR}/.agent/skills/${SKILL_NAME}"
-    copy_skill "${SRC_DIR}" "${AG_DIR}" "antigravity-local"
+if [[ "${TARGET}" == "antigravity" ]]; then
+    install_tool_auto "antigravity"
 fi
 
-if [[ "${TARGET}" == "global" || "${TARGET}" == "all" ]]; then
-    AG_GLOBAL_DIR="${HOME}/.gemini/antigravity/skills/${SKILL_NAME}"
-    copy_skill "${SRC_DIR}" "${AG_GLOBAL_DIR}" "antigravity-global"
+if [[ "${TARGET}" == "claude" ]]; then
+    install_tool_auto "claude"
 fi
 
-if [[ "${TARGET}" == "claude" || "${TARGET}" == "global" || "${TARGET}" == "all" ]]; then
-    CLAUDE_DIR="${HOME}/.claude/skills/${SKILL_NAME}"
-    copy_skill "${SRC_DIR}" "${CLAUDE_DIR}" "claude"
+if [[ "${TARGET}" == "codex" ]]; then
+    install_tool_auto "codex"
 fi
 
-if [[ "${TARGET}" == "codex" || "${TARGET}" == "global" || "${TARGET}" == "all" ]]; then
-    CODEX_ROOT="${CODEX_HOME:-${HOME}/.codex}"
-    CODEX_DIR="${CODEX_ROOT}/skills/${SKILL_NAME}"
-    copy_skill "${SRC_DIR}" "${CODEX_DIR}" "codex"
+if [[ "${TARGET}" == "global" ]]; then
+    install_tool_global "antigravity"
+    install_tool_global "claude"
+    install_tool_global "codex"
+fi
+
+if [[ "${TARGET}" == "all" ]]; then
+    install_tool_auto "antigravity"
+    install_tool_auto "claude"
+    install_tool_auto "codex"
 fi
 
 if [[ "${INSTALL_DEPS}" -eq 1 ]]; then

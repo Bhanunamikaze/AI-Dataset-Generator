@@ -5,7 +5,9 @@ $ErrorActionPreference = 'Stop'
 $REPO_URL = if ($env:REPO_URL) { $env:REPO_URL } else { 'https://github.com/Bhanunamikaze/Agentic-Dataset-Skill.git' }
 $SKILL_NAME = 'dataset-generator'
 $TARGET = 'antigravity'
+$TARGET_EXPLICIT = $false
 $PROJECT_DIR = (Get-Location).Path
+$PROJECT_DIR_EXPLICIT = $false
 $FORCE = $false
 $INSTALL_DEPS = $false
 $ONLINE_MODE = $false
@@ -28,7 +30,8 @@ Options:
   --source <auto|local|remote>                    Source mode (default: auto)
   --repo-path <path>                              Use a specific local repository path as source
   --install-deps                                  Install optional Python dependencies
-  --online                                        Fetch the latest release zip package instead of cloning and install globally
+  --online                                        Fetch the latest release zip package instead of cloning
+                                                  When no --target is supplied, defaults to --target all
   --force                                         Overwrite existing target directory
   -h, --help                                      Show help
 
@@ -128,6 +131,95 @@ function Copy-Skill {
   Write-Host "Installed for ${Label}: $Dest"
 }
 
+function Get-WorkspaceRootForTool {
+  param([Parameter(Mandatory = $true)][string]$Tool)
+
+  switch ($Tool) {
+    'antigravity' {
+      if ($TARGET -eq 'antigravity') {
+        return (Join-Path $PROJECT_DIR '.agent')
+      }
+
+      $agentRoot = Join-Path $PROJECT_DIR '.agent'
+      if ($TARGET -eq 'all' -and ($PROJECT_DIR_EXPLICIT -or (Test-Path -LiteralPath $agentRoot -PathType Container))) {
+        return $agentRoot
+      }
+
+      return $null
+    }
+    'claude' {
+      $claudeRoot = Join-Path $PROJECT_DIR '.claude'
+      if (Test-Path -LiteralPath $claudeRoot -PathType Container) {
+        return $claudeRoot
+      }
+      return $null
+    }
+    'codex' {
+      $codexRoot = Join-Path $PROJECT_DIR '.codex'
+      if (Test-Path -LiteralPath $codexRoot -PathType Container) {
+        return $codexRoot
+      }
+      return $null
+    }
+    default {
+      throw "Error: unsupported install tool: $Tool"
+    }
+  }
+}
+
+function Get-GlobalRootForTool {
+  param([Parameter(Mandatory = $true)][string]$Tool)
+
+  switch ($Tool) {
+    'antigravity' {
+      return (Join-Path $HOME '.gemini/antigravity')
+    }
+    'claude' {
+      if ($env:CLAUDE_HOME) { return $env:CLAUDE_HOME }
+      return (Join-Path $HOME '.claude')
+    }
+    'codex' {
+      if ($env:CODEX_HOME) { return $env:CODEX_HOME }
+      return (Join-Path $HOME '.codex')
+    }
+    default {
+      throw "Error: unsupported install tool: $Tool"
+    }
+  }
+}
+
+function Install-ToolAuto {
+  param(
+    [Parameter(Mandatory = $true)][string]$Src,
+    [Parameter(Mandatory = $true)][string]$Tool,
+    [Parameter(Mandatory = $true)][string]$SkillName
+  )
+
+  $installRoot = Get-WorkspaceRootForTool -Tool $Tool
+  if ($installRoot) {
+    $label = "${Tool}-local"
+  }
+  else {
+    $installRoot = Get-GlobalRootForTool -Tool $Tool
+    $label = "${Tool}-global"
+  }
+
+  $dest = Join-Path (Join-Path $installRoot 'skills') $SkillName
+  Copy-Skill -Src $Src -Dest $dest -Label $label
+}
+
+function Install-ToolGlobal {
+  param(
+    [Parameter(Mandatory = $true)][string]$Src,
+    [Parameter(Mandatory = $true)][string]$Tool,
+    [Parameter(Mandatory = $true)][string]$SkillName
+  )
+
+  $installRoot = Get-GlobalRootForTool -Tool $Tool
+  $dest = Join-Path (Join-Path $installRoot 'skills') $SkillName
+  Copy-Skill -Src $Src -Dest $dest -Label "${Tool}-global"
+}
+
 $idx = 0
 while ($idx -lt $args.Count) {
   $arg = $args[$idx]
@@ -135,12 +227,14 @@ while ($idx -lt $args.Count) {
     '--target' {
       if (($idx + 1) -ge $args.Count) { throw 'Error: missing value for --target' }
       $TARGET = $args[$idx + 1]
+      $TARGET_EXPLICIT = $true
       $idx += 2
       continue
     }
     '--project-dir' {
       if (($idx + 1) -ge $args.Count) { throw 'Error: missing value for --project-dir' }
       $PROJECT_DIR = $args[$idx + 1]
+      $PROJECT_DIR_EXPLICIT = $true
       $idx += 2
       continue
     }
@@ -176,7 +270,6 @@ while ($idx -lt $args.Count) {
     '--online' {
       $ONLINE_MODE = $true
       $FORCE = $true
-      $TARGET = 'global'
       $idx += 1
       continue
     }
@@ -200,6 +293,10 @@ if ($TARGET -notin @('antigravity', 'claude', 'codex', 'global', 'all')) {
 
 if ($SOURCE_MODE -notin @('auto', 'local', 'remote')) {
   throw "Error: invalid --source: $SOURCE_MODE"
+}
+
+if ($ONLINE_MODE -and (-not $TARGET_EXPLICIT)) {
+  $TARGET = 'all'
 }
 
 Require-Cmd -Cmd 'python3'
@@ -282,34 +379,46 @@ try {
   Write-Host "Skill name: $SKILL_NAME"
   Write-Host ''
 
-  if ($TARGET -in @('antigravity', 'all')) {
+  if ($TARGET -eq 'antigravity') {
     try {
-      $AG_DIR = Join-Path (Join-Path $PROJECT_DIR '.agent/skills') $SKILL_NAME
-      Copy-Skill -Src $SRC_DIR -Dest $AG_DIR -Label 'antigravity-local'
+      Install-ToolAuto -Src $SRC_DIR -Tool 'antigravity' -SkillName $SKILL_NAME
     } catch { Write-Warning "Skipped antigravity-local: $_" }
   }
 
-  if ($TARGET -in @('global', 'all')) {
+  if ($TARGET -eq 'claude') {
     try {
-      $AG_GLOBAL_DIR = Join-Path (Join-Path $HOME '.gemini/antigravity/skills') $SKILL_NAME
-      Copy-Skill -Src $SRC_DIR -Dest $AG_GLOBAL_DIR -Label 'antigravity-global'
+      Install-ToolAuto -Src $SRC_DIR -Tool 'claude' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped claude install: $_" }
+  }
+
+  if ($TARGET -eq 'codex') {
+    try {
+      Install-ToolAuto -Src $SRC_DIR -Tool 'codex' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped codex install: $_" }
+  }
+
+  if ($TARGET -eq 'global') {
+    try {
+      Install-ToolGlobal -Src $SRC_DIR -Tool 'antigravity' -SkillName $SKILL_NAME
     } catch { Write-Warning "Skipped antigravity-global: $_" }
+    try {
+      Install-ToolGlobal -Src $SRC_DIR -Tool 'claude' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped claude-global: $_" }
+    try {
+      Install-ToolGlobal -Src $SRC_DIR -Tool 'codex' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped codex-global: $_" }
   }
 
-  if ($TARGET -in @('claude', 'global', 'all')) {
+  if ($TARGET -eq 'all') {
     try {
-      $clDir = if ($env:CLAUDE_HOME) { $env:CLAUDE_HOME } else { Join-Path $HOME '.claude' }
-      $CLAUDE_DIR = Join-Path (Join-Path $clDir 'skills') $SKILL_NAME
-      Copy-Skill -Src $SRC_DIR -Dest $CLAUDE_DIR -Label 'claude'
-    } catch { Write-Warning "Skipped claude: $_" }
-  }
-
-  if ($TARGET -in @('codex', 'global', 'all')) {
+      Install-ToolAuto -Src $SRC_DIR -Tool 'antigravity' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped antigravity install: $_" }
     try {
-      $CODEX_ROOT = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
-      $CODEX_DIR = Join-Path (Join-Path $CODEX_ROOT 'skills') $SKILL_NAME
-      Copy-Skill -Src $SRC_DIR -Dest $CODEX_DIR -Label 'codex'
-    } catch { Write-Warning "Skipped codex: $_" }
+      Install-ToolAuto -Src $SRC_DIR -Tool 'claude' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped claude install: $_" }
+    try {
+      Install-ToolAuto -Src $SRC_DIR -Tool 'codex' -SkillName $SKILL_NAME
+    } catch { Write-Warning "Skipped codex install: $_" }
   }
 
   if ($INSTALL_DEPS) {
