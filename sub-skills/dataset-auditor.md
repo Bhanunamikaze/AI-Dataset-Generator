@@ -84,9 +84,68 @@ Objective: Verify that the `context` field does not reveal the answer, mechanism
 
 Steps:
 1. Sample 20% of records (or all records if < 200 total).
-2. For each sampled record, check whether any key tokens from the final verdict or root cause in `response.text` appear verbatim in `context`. Use a simple substring match on the most distinctive tokens (e.g., "VULNERABLE", "XSS", "SQL injection", the specific sink name).
+2. For each sampled record, check whether any key tokens from the final verdict or root cause in `response.text` appear verbatim in `context`. Use a simple substring match on the most distinctive tokens.
 3. Flag records where > 2 decisive tokens from the response appear literally in the context.
 4. Report the leaked-context rate. If > 15% of sampled records show leakage, this is a **High severity** finding.
+
+### 2D. Reasoning variety audit
+
+Objective: Detect "slot-filling" — examples that appear diverse on the surface but share an identical reasoning structure.
+
+Steps:
+1. Extract the first sentence of each response and the overall structural shape (numbered list vs. prose paragraph vs. code block vs. `<think>` trace).
+2. Group records by structural shape. Flag if > 50% of all records share the exact same shape.
+3. Within each structural group, check if the first 10 content-bearing words of responses follow the same template. Flag clusters where > 3 consecutive records open with the same phrasing.
+4. If > 40% of records are structurally identical, severity is **High**. If 20–40%, **Medium**.
+
+### 2E. Quantity adequacy check
+
+Objective: Verify that the total record count is sufficient for meaningful gradient signal given the task type.
+
+Minimum thresholds (flag if below):
+
+| Task type | Minimum records | Recommended |
+|-----------|----------------|-------------|
+| SFT classification (binary) | 200 | 500+ |
+| SFT classification (multi-label) | 500 | 1000+ |
+| SFT open-ended generation | 300 | 1000+ |
+| DPO preference pairs | 500 | 2000+ |
+| Specialized domain fine-tune | 1000 | 5000+ |
+
+Report the count against the appropriate threshold. Flag as **High** if below minimum, **Medium** if below recommended.
+
+### 2F. Statistical balance and randomness check
+
+Objective: Verify that no combination of metadata attributes is so dominant that it will bias the model.
+
+Steps:
+1. For every pair of metadata axes (e.g., `difficulty × persona`, `difficulty × task_type`), compute a joint distribution table.
+2. Flag any cell in the joint table that holds > 30% of total records.
+3. Run a simple balance test: compute the coefficient of variation (CV = std / mean) across all buckets in each single-axis distribution. CV < 0.2 is well-balanced; CV 0.2–0.5 is moderate skew; CV > 0.5 is severe skew. Flag severe skew as **Medium**.
+4. Check ordering: if records were generated in batches, check that the exported JSONL is shuffled. Records should not be monotonically ordered by `metadata.topic` or `metadata.difficulty`. If sorted order is detected, flag as **Low** (export script should shuffle).
+
+### 2G. Response length calibration check
+
+Objective: Verify that response lengths are appropriate for their task type — concise for classification, thorough for generation/CoT.
+
+Steps:
+1. Group records by `metadata.reasoning_style` (`chain_of_thought` vs. `direct`) and by inferred task complexity (simple factual vs. multi-step).
+2. Compute median response length (in characters) per group.
+3. Flag as **Medium** if:
+   - A direct/classification response exceeds 800 characters (likely padding or over-explanation).
+   - A chain-of-thought response is shorter than 300 characters (likely a truncated or missing trace).
+4. Flag as **Low** if overall response length variance (std/mean) is < 0.2 — too uniform, likely over-templated.
+
+### 2H. Label balance check (classification tasks)
+
+Objective: For datasets where the response is a fixed label set, verify that positive and negative classes are balanced.
+
+Steps:
+1. Detect if the dataset is a classification task: look for `metadata.task_type = "classification"`, or if `response.text` contains only values from a small fixed set (e.g., "VULNERABLE"/"NOT_VULNERABLE", "PASS"/"FAIL", "YES"/"NO").
+2. If classification is detected, compute the class distribution.
+3. Flag as **High** if any single class exceeds 75% of records (severe imbalance that will cause a biased model).
+4. Flag as **Medium** if any class is between 60–75% (moderate imbalance).
+5. Recommend oversampling the minority class or regenerating records for under-represented labels.
 
 ---
 
@@ -108,15 +167,21 @@ After all phases, produce a structured summary. Do **not** just emit raw numbers
 |---|----------|-------|--------|
 | 1 | High     | Split disjointness | 7 scenario fingerprints appear in both train and test |
 | 2 | High     | Context leakage | 22% of sampled records expose the answer in context |
-| 3 | Medium   | Taxonomy coverage | 4 planned buckets have zero records |
-| 4 | Low      | Diversity | persona distribution: "red_team_analyst" = 68% of corpus |
+| 3 | High     | Label balance | "VULNERABLE" = 82% of corpus, "NOT_VULNERABLE" = 18% |
+| 4 | Medium   | Taxonomy coverage | 4 planned buckets have zero records |
+| 5 | Medium   | Quantity adequacy | 180 records found, minimum for DPO is 500 |
+| 6 | Medium   | Reasoning variety | 68% of responses share identical numbered-list structure |
+| 7 | Low      | Balance/randomness | difficulty CV = 0.6, severe skew toward "medium" |
+| 8 | Low      | Response length | CoT responses avg 210 chars — likely truncated traces |
 
 ### Recommendations
 
 For each High or Medium finding, emit a concrete, actionable fix:
 - "Re-run export with `--split 0.2` and verify cluster disjointness."
 - "Re-generate the 4 missing taxonomy buckets using `diversity-engine`."
-- "Strip explicit sink names from context fields in records flagged for leakage."
+- "Strip explicit answer tokens from context fields in records flagged for leakage."
+- "Generate 320 more records to reach DPO minimum of 500."
+- "Re-generate NOT_VULNERABLE examples to reach 40–60% class balance."
 ```
 
 ---
