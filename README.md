@@ -10,6 +10,16 @@ An agentic dataset-generation skill for agent IDEs, built around tool-native rea
 - Claude Code: `~/.claude/skills/dataset-generator`
 - Codex: `~/.codex/skills/dataset-generator`
 
+## How it Works
+
+The skill operates in a continuous agentic loop, splitting work between reasoning (LLM) and deterministic processing (local SQLite/scripts):
+
+1. **Strategic Planning**: The agent analyzes your prompt, defines the output schema, sets an SFT or DPO target, and designs a multi-axis taxonomy aimed at long-tail edge cases.
+2. **Research & Seeding**: Adhering to a research-first mandate, the agent fetches real-world examples (via IDE search or web tools) and drafts initial "seed" records in a standard (`canonical`) schema, injecting human-like imperfections.
+3. **Augmentation**: The `diversity-engine` multiplies the seeds across different personas, difficulties, and structural reasoning pathways, avoiding simple slot-filling templates.
+4. **Verification & Audit**: The agent filters out refusals, runs records through an adversarial LLM judge, and executes a corpus-wide security audit (checking for context leakage, split disjointness, and synthetic fingerprints).
+5. **Deduplication & Export**: Deterministic algorithms (`scripts/dedup.py`, `scripts/export.py`) perform strict MinHash/TF-IDF deduplication. Finally, the pipeline executes a **cluster-based train/test split** (preventing scenario leakage between holdout sets) and maps the canonical records into your requested output format (OpenAI, HuggingFace Chat, flat CSV/JSONL, or a custom schema).
+
 ## Current Inventory
 
 - Specialized sub-skills: `12`
@@ -18,7 +28,6 @@ An agentic dataset-generation skill for agent IDEs, built around tool-native rea
 - Internal canonical schema: `1`
 - Preset export schemas: `3`
 - Automated tests: `24`
-
 
 ## Features
 
@@ -70,28 +79,15 @@ bash install.sh --target all --project-dir /path/to/your/project
 bash install.sh --target codex --repo-path /path/to/Agentic-Dataset-Skill
 ```
 
-### Install Directly From GitHub
+### Automatic Online Install
 
-Recommended path:
-
-- clone the repository
-- review `install.sh`
-- run it locally
-
-Convenience remote install exists, but pipe-to-shell is intentionally not the recommended default.
-
-### Safer Remote Install With Checksum
-
-For stronger integrity, pin to a release tag or commit SHA instead of `main`.
+To download the latest release package and install it globally across all IDEs (Antigravity, Claude, Codex) in one step:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh
-curl -fsSLO https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh.sha256
-sha256sum -c install.sh.sha256
-bash install.sh --target codex
+curl -sSL https://raw.githubusercontent.com/Bhanunamikaze/Agentic-Dataset-Skill/main/install.sh | bash -s -- --online
 ```
 
-Python dependency install:
+## Python dependency install:
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -186,13 +182,6 @@ This repo is an automated pipeline for the deterministic stages:
 3. verify records
 4. deduplicate verified records
 5. export artifacts and generate a data card
-
-What is not fully autonomous by design:
-
-- browsing/search-driven evidence collection
-- taxonomy design
-- semantic judging
-- custom export-schema selection
 
 Those reasoning-heavy phases are handled by the host IDE agent via [`SKILL.md`](./SKILL.md) and [`sub-skills/`](./sub-skills/), which matches the Codex / Antigravity / Claude Code skill model.
 

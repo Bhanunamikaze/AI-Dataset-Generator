@@ -8,6 +8,7 @@ TARGET="antigravity"
 PROJECT_DIR="$(pwd)"
 FORCE=0
 INSTALL_DEPS=0
+ONLINE_MODE=0
 SOURCE_MODE="auto"
 REPO_PATH=""
 TEMP_DIR=""
@@ -40,6 +41,8 @@ Options:
       Use a local repository checkout as the install source
   --install-deps
       Install optional Python dependencies for local helper scripts
+  --online
+      Fetch the latest release tag package instead of cloning and install globally (all IDEs).
   --force
       Overwrite an existing installed skill
   -h, --help
@@ -172,6 +175,11 @@ while [[ $# -gt 0 ]]; do
             INSTALL_DEPS=1
             shift
             ;;
+        --online)
+            ONLINE_MODE=1
+            TARGET="all"
+            shift
+            ;;
         --force)
             FORCE=1
             shift
@@ -206,7 +214,22 @@ SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 SRC_DIR=""
 SHOULD_CLONE=0
 
-if [[ -n "${REPO_PATH}" ]]; then
+if [[ "${ONLINE_MODE}" -eq 1 ]]; then
+    require_cmd curl
+    require_cmd tar
+    echo "Fetching latest release tag..."
+    LATEST_TAG=$(curl -sL https://api.github.com/repos/Bhanunamikaze/Agentic-Dataset-Skill/releases/latest | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || true)
+    TEMP_DIR="$(mktemp -d)"
+    if [[ -z "${LATEST_TAG}" || "${LATEST_TAG}" == "null" ]]; then
+        echo "Could not determine latest tag, falling back to main branch archive..."
+        curl -sL "https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/archive/refs/heads/main.tar.gz" | tar -xz -C "${TEMP_DIR}" --strip-components=1
+    else
+        echo "Downloading latest tag package: ${LATEST_TAG}"
+        curl -sL "https://github.com/Bhanunamikaze/Agentic-Dataset-Skill/archive/refs/tags/${LATEST_TAG}.tar.gz" | tar -xz -C "${TEMP_DIR}" --strip-components=1
+    fi
+    SRC_DIR="${TEMP_DIR}"
+    echo "Using downloaded package source: ${SRC_DIR}"
+elif [[ -n "${REPO_PATH}" ]]; then
     SRC_DIR="$(resolve_dir "${REPO_PATH}")"
     echo "Using repo path source: ${SRC_DIR}"
 elif [[ "${SOURCE_MODE}" == "local" ]]; then
