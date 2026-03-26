@@ -16,6 +16,7 @@ This skill is a tool-native dataset pipeline for Codex, Antigravity, and Claude 
 - `dataset generate "<request>" [--count <n>]`
 - `dataset collect "<topic or query>" [--urls url1 url2] [--paths ./dir]`
 - `dataset verify <path/to/file>`
+- `dataset audit [<path/to/file>]`
 - `dataset export --format <openai|huggingface|csv|jsonl|all> [--schema-file path] [--split 0.1]`
 
 If `dataset generate` does not include a size, default to `500` records.
@@ -155,7 +156,19 @@ Prefer the DB-backed route above so the audit remains resumable and traceable.
 
 For intentionally adversarial security corpora, injection-tolerant import is now the default. Add `--enforce-security-flags` only when you want strict flagging on those records.
 
-### 3. `dataset export`
+### 3. `dataset audit`
+
+Use this when the user wants a structured quality assessment of an existing or freshly generated dataset.
+
+Read `sub-skills/dataset-auditor.md`. The auditor runs three phases:
+
+1. **Record-level** — delegates to `data-verifier`, `deduplicator`, and optionally `llm-judge`
+2. **Corpus-level** — checks split disjointness, taxonomy coverage, and context leakage
+3. **Structured report** — emits a severity-classified findings table with concrete recommendations
+
+No additional scripts are required — the auditor drives the existing `verify.py`, `dedup.py`, and `export.py` scripts and reasons over their outputs.
+
+### 4. `dataset export`
 
 Use this when the verified data already exists in SQLite and the user wants a specific output shape.
 
@@ -198,6 +211,7 @@ Users do not need to use explicit flags if they describe the task naturally.
 - `sub-skills/formatter-exporter.md`
 - `sub-skills/data-card.md`
 - `sub-skills/data-verifier.md`
+- `sub-skills/dataset-auditor.md`
 - `sub-skills/local-collector.md`
 - `resources/references/llm-audit-rubric.md`
 - `resources/references/export-schema-pattern.md`
