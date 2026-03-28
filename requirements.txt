@@ -4,6 +4,9 @@ jsonschema>=4.26,<5
 tree-sitter>=0.25,<0.26
 tree-sitter-language-pack>=1.3,<2
 
+# Optional: required for running the repo test suite locally
+pytest>=8.0,<9
+
 # Optional: required only for scripts/collect.py (local web/URL/file collector)
 # Install with: python3 -m pip install -r requirements.txt
 requests>=2.31,<3
