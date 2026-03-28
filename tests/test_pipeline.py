@@ -88,6 +88,21 @@ class CanonicalNormalizationTests(unittest.TestCase):
         self.assertEqual(researched["metadata"]["source_origin"], "real_world")
         self.assertTrue(researched["metadata"]["source_origin_inferred"])
 
+    def test_normalize_record_treats_structured_sources_as_real_world(self) -> None:
+        from scripts.utils.canonical import normalize_record
+
+        record = normalize_record(
+            {
+                "instruction": "Explain this source bundle.",
+                "response": {"format": "single", "text": "Grounded on local source files."},
+                "metadata": {"difficulty": "medium", "persona": "analyst"},
+            },
+            source_type="structured_source",
+        )
+
+        self.assertEqual(record["metadata"]["source_origin"], "real_world")
+        self.assertTrue(record["metadata"]["source_origin_inferred"])
+
     def test_normalize_record_flags_untrusted_prompt_injection_markers(self) -> None:
         from scripts.utils.canonical import normalize_record
 
@@ -2230,6 +2245,53 @@ class CollectorTests(unittest.TestCase):
             for path in source_paths:
                 self.assertFalse(path.endswith(".py"), f"Should not collect .py files: {path}")
                 self.assertFalse(path.endswith(".csv"), f"Should not collect .csv files: {path}")
+
+    def test_source_artifact_validation_accepts_file_artifact(self) -> None:
+        from scripts.utils.schema import validate_source_artifact
+
+        artifact = {
+            "id": "art_123",
+            "artifact_type": "file",
+            "kind": "c_source",
+            "source_path": "/tmp/example.c",
+            "title": "example.c",
+            "language": "c_cpp",
+            "content": "int main(void) { return 0; }",
+            "related_paths": [],
+            "metadata": {"sha256": "abc"},
+        }
+
+        self.assertEqual(validate_source_artifact(artifact), [])
+
+    def test_discovery_classifies_structured_source_types(self) -> None:
+        from scripts.utils.discovery import classify_source_path
+
+        self.assertEqual(classify_source_path("src/main.cpp")["parser_key"], "c_family")
+        self.assertEqual(classify_source_path("include/main.h")["file_kind"], "c_header")
+        self.assertEqual(classify_source_path("sample.sln")["file_kind"], "visual_studio_solution")
+        self.assertEqual(classify_source_path("project.vcxproj")["parser_key"], "c_family")
+        self.assertEqual(classify_source_path("guide.html")["parser_key"], "article")
+        self.assertEqual(classify_source_path("archive.mhtml")["file_kind"], "mhtml_document")
+        self.assertFalse(classify_source_path("image.png")["supported"])
+
+    def test_discovery_reads_only_supported_source_files(self) -> None:
+        from scripts.utils.discovery import discover_source_files
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_dir = Path(tmpdir)
+            (temp_dir / "src").mkdir()
+            (temp_dir / ".git").mkdir()
+            (temp_dir / "src" / "main.cpp").write_text("int main() { return 0; }\n", encoding="utf-8")
+            (temp_dir / "src" / "main.h").write_text("int main();\n", encoding="utf-8")
+            (temp_dir / "guide.html").write_text("<html><body><pre>printf(\"hi\");</pre></body></html>", encoding="utf-8")
+            (temp_dir / ".git" / "ignored.cpp").write_text("int ignored() { return 1; }\n", encoding="utf-8")
+            (temp_dir / "image.png").write_bytes(b"\x89PNG\r\n")
+
+            discovered = discover_source_files([str(temp_dir)], max_files=20)
+
+        self.assertEqual(discovered["skipped"], [])
+        file_paths = {Path(item["source_path"]).name for item in discovered["files"]}
+        self.assertEqual(file_paths, {"main.cpp", "main.h", "guide.html"})
 
 
 if __name__ == "__main__":

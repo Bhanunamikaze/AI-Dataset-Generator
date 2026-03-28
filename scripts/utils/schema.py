@@ -7,6 +7,7 @@ from typing import Any
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT_DIR / "resources" / "internal-schema" / "canonical_schema.json"
+SOURCE_ARTIFACT_SCHEMA_PATH = ROOT_DIR / "resources" / "internal-schema" / "source_artifact_schema.json"
 PIPELINE_STATUSES = {"pending", "pass", "fail", "rewrite"}
 TASK_TYPES = {"sft", "dpo"}
 
@@ -14,6 +15,12 @@ TASK_TYPES = {"sft", "dpo"}
 @lru_cache(maxsize=1)
 def load_schema() -> dict[str, Any]:
     with open(SCHEMA_PATH, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+@lru_cache(maxsize=1)
+def load_source_artifact_schema() -> dict[str, Any]:
+    with open(SOURCE_ARTIFACT_SCHEMA_PATH, "r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
@@ -28,6 +35,19 @@ def validate_record(record: dict[str, Any]) -> list[str]:
     if errors:
         return errors
     return basic_validate_record(record)
+
+
+def validate_source_artifact(artifact: dict[str, Any]) -> list[str]:
+    try:
+        from jsonschema import Draft202012Validator
+    except ImportError:
+        return basic_validate_source_artifact(artifact)
+
+    validator = Draft202012Validator(load_source_artifact_schema())
+    errors = [error.message for error in validator.iter_errors(artifact)]
+    if errors:
+        return errors
+    return basic_validate_source_artifact(artifact)
 
 
 def project_record_for_schema(record: dict[str, Any]) -> dict[str, Any]:
@@ -113,6 +133,39 @@ def basic_validate_record(record: dict[str, Any]) -> list[str]:
     context = record.get("context")
     if not isinstance(context, str):
         errors.append("context must be a string")
+
+    return errors
+
+
+def basic_validate_source_artifact(artifact: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+
+    required_fields = ("id", "artifact_type", "kind", "source_path", "metadata")
+    for field in required_fields:
+        if field not in artifact:
+            errors.append(f"Missing required field: {field}")
+
+    if artifact.get("artifact_type") not in {"file", "unit", "relation", "bundle"}:
+        errors.append("artifact_type must be file, unit, relation, or bundle")
+
+    for field in ("id", "kind", "source_path"):
+        value = artifact.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"{field} must be a non-empty string")
+
+    metadata = artifact.get("metadata")
+    if not isinstance(metadata, dict):
+        errors.append("metadata must be an object")
+
+    related_paths = artifact.get("related_paths")
+    if related_paths is not None:
+        if not isinstance(related_paths, list) or any(not isinstance(item, str) for item in related_paths):
+            errors.append("related_paths must be an array of strings")
+
+    for field in ("title", "language", "content"):
+        value = artifact.get(field)
+        if value is not None and not isinstance(value, str):
+            errors.append(f"{field} must be a string or null")
 
     return errors
 

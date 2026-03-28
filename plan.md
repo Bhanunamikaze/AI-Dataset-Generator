@@ -32,7 +32,7 @@ This path must:
 
 - Branch setup: `completed`
 - Planning document: `completed`
-- Structured ingestion implementation: `pending`
+- Structured ingestion implementation: `in_progress`
 
 ## Proposed Architecture
 
@@ -81,9 +81,9 @@ Definitions:
 |---|---|---|---|
 | SI-00 | Create branch and planning baseline | `coding-dataset` branch, `plan.md` | `completed` |
 | SI-01 | Add structured ingestion entry point | `scripts/ingest.py`, CLI arguments, run directory creation, summary report | `pending` |
-| SI-02 | Add source artifact schema and helpers | `resources/internal-schema/source_artifact_schema.json`, `scripts/utils/artifacts.py` | `pending` |
-| SI-03 | Add discovery layer | `scripts/utils/discovery.py`, source classification, project detection, file manifests | `pending` |
-| SI-04 | Add parser registry | `scripts/utils/parsers/base.py`, parser dispatch by file type | `pending` |
+| SI-02 | Add source artifact schema and helpers | `resources/internal-schema/source_artifact_schema.json`, `scripts/utils/artifacts.py` | `completed` |
+| SI-03 | Add discovery layer | `scripts/utils/discovery.py`, source classification, project detection, file manifests | `completed` |
+| SI-04 | Add parser registry | `scripts/utils/parsers/base.py`, parser dispatch by file type | `in_progress` |
 | SI-05 | Implement C/C++ parser core | symbol extraction, include extraction, companion file detection, fallback heuristic mode | `pending` |
 | SI-06 | Add Visual Studio project awareness | `.sln`, `.vcxproj`, `.vcxproj.filters` parsing and project membership mapping | `pending` |
 | SI-07 | Build C/C++ context bundler | bundle primary file with related headers, sources, project metadata, and include neighbors | `pending` |
@@ -110,7 +110,7 @@ Tasks:
 - `SI-03`
 - `SI-04`
 
-Status: `pending`
+Status: `in_progress`
 
 ### Phase 2: C/C++ Repository Parsing
 

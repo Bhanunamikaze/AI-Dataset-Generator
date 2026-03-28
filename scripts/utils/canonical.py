@@ -70,7 +70,7 @@ def coerce_metadata(raw: Mapping[str, Any], source_type: str) -> dict[str, Any]:
     metadata.setdefault("persona", str(_pick(raw, PERSONA_KEYS, "general")))
     metadata.setdefault("source_type", str(raw.get("source_type", source_type)))
     if metadata.get("source_origin") in (None, ""):
-        if source_type in ("url_reference", "internet_research"):
+        if source_type in ("url_reference", "internet_research", "structured_source"):
             metadata["source_origin"] = "real_world"
         elif source_type == "generated":
             metadata["source_origin"] = "synthetic"

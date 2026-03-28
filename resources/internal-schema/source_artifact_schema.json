@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataset-generator-skill.local/schemas/source_artifact_schema.json",
+  "title": "Structured Source Artifact",
+  "description": "Generic schema for structured ingestion artifacts such as discovered files, parsed units, relations, and bundles.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "artifact_type",
+    "kind",
+    "source_path",
+    "metadata"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "file",
+        "unit",
+        "relation",
+        "bundle"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "content": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "related_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

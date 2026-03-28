@@ -114,6 +114,7 @@
             "url_reference",
             "raw_dataset",
             "internet_research",
+            "structured_source",
             "manual"
           ]
         },

@@ -4,7 +4,7 @@ import re
 from typing import Any
 
 CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-UNTRUSTED_SOURCE_TYPES = {"url_reference", "raw_dataset", "internet_research"}
+UNTRUSTED_SOURCE_TYPES = {"url_reference", "raw_dataset", "internet_research", "structured_source"}
 AUTO_ALLOW_INJECTION_PATTERN = re.compile(
     r"\b("
     r"red[\s-]?team(?:ing)?|"
